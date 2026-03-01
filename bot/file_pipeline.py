@@ -20,9 +20,10 @@ def validate_markdown_document(document: Document, max_file_size_mb: int) -> str
     if not safe_file_name or not safe_file_name.lower().endswith(".md"):
         raise InvalidFileFormat()
 
-    max_size_bytes = max_file_size_mb * 1024 * 1024
-    if document.file_size > max_size_bytes:
-        raise FileTooLarge(max_file_size_mb)
+    if document.file_size is not None:
+        max_size_bytes = max_file_size_mb * 1024 * 1024
+        if document.file_size > max_size_bytes:
+            raise FileTooLarge(max_file_size_mb)
 
     return safe_file_name
 
