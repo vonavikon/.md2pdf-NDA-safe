@@ -41,7 +41,7 @@ def get_pdf_css(with_logo: bool = True) -> str:
 }}
 
 .header-logo img {{
-    height: 32px;
+    height: 35px;
     width: auto;
 }}
 
