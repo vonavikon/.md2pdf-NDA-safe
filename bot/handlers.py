@@ -21,7 +21,8 @@ async def cmd_start(message: Message):
     await message.answer(
         "👋 **Welcome to Markdown to PDF Bot!**\n\n"
         "Send me a `.md` file and I'll convert it to PDF.\n\n"
-        "✅ Supports: LaTeX formulas, Mermaid diagrams, images, code highlighting\n"
+        "✅ Supports: tables, code highlighting, lists, images\n"
+        "🎨 Styled with NAUMEN branding\n"
         "🔒 Your files are not stored on server (NDA Safe)\n\n"
         "Use /help for more info.",
         parse_mode="Markdown"
@@ -32,11 +33,12 @@ async def cmd_start(message: Message):
 async def cmd_help(message: Message):
     await message.answer(
         "**Supported Features:**\n\n"
-        "• Headers, lists, tables\n"
-        "• LaTeX formulas: `$E=mc^2$` or `$$...$$`\n"
-        "• Mermaid diagrams\n"
-        "• Images (links and base64)\n"
-        "• Code with syntax highlighting\n"
+        "• Headers (H1-H6), bold, italic\n"
+        "• Ordered and unordered lists\n"
+        "• Tables with styling\n"
+        "• Code blocks with syntax highlighting\n"
+        "• Blockquotes\n"
+        "• Links and images\n"
         "• Cyrillic text\n\n"
         "**Limits:**\n"
         f"• Max file size: {MAX_FILE_SIZE_MB} MB\n"
