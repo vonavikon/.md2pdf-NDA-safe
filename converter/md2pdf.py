@@ -29,22 +29,7 @@ def get_pdf_css(with_logo: bool = True) -> str:
     return f"""
 @page {{
     size: A4;
-    margin: 2.5cm 1.5cm 3cm 1.5cm;
-    @bottom-center {{
-        content: element(footer-logo);
-        vertical-align: middle;
-    }}
-}}
-
-/* Running footer logo - appears on every page */
-.footer-logo {{
-    position: running(footer-logo);
-    text-align: center;
-}}
-
-.footer-logo img {{
-    height: 28px;
-    width: auto;
+    margin: 2cm 1.5cm;
 }}
 
 body {{
@@ -173,9 +158,25 @@ img {{
     height: auto;
 }}
 
-/* Content wrapper */
+/* Fixed footer with logo on every page */
+.page-footer {{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.5cm;
+    text-align: center;
+    padding-bottom: 0.5cm;
+}}
+
+.page-footer img {{
+    height: 24px;
+    width: auto;
+}}
+
+/* Add padding to body to prevent content overlap with footer */
 .content {{
-    /* No extra styling needed */
+    padding-bottom: 2cm;
 }}
 """
 
@@ -217,17 +218,17 @@ def convert_md_to_pdf(
             ]
         )
 
-        # Build footer logo HTML (running element for all pages)
-        footer_logo_html = ""
+        # Build footer logo HTML (fixed position for all pages)
+        footer_html = ""
         if include_logo:
             logo_b64 = _get_logo_base64()
             if logo_b64:
-                footer_logo_html = f'''
-        <div class="footer-logo">
-            <img src="data:image/png;base64,{logo_b64}" alt="Logo">
+                footer_html = f'''
+        <div class="page-footer">
+            <img src="data:image/png;base64,{logo_b64}" alt="NAUMEN">
         </div>'''
 
-        # Wrap in HTML structure with footer logo
+        # Wrap in HTML structure with footer
         full_html = f"""
         <!DOCTYPE html>
         <html>
@@ -238,7 +239,7 @@ def convert_md_to_pdf(
             <div class="content">
                 {html_content}
             </div>
-            {footer_logo_html}
+            {footer_html}
         </body>
         </html>
         """
