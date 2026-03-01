@@ -158,25 +158,24 @@ img {{
     height: auto;
 }}
 
-/* Fixed footer with logo on every page */
-.page-footer {{
+/* Fixed header with logo on every page - top right corner */
+.page-header {{
     position: fixed;
-    bottom: 0;
-    left: 0;
+    top: 0;
     right: 0;
     height: 1.5cm;
-    text-align: center;
-    padding-bottom: 0.5cm;
+    text-align: right;
+    padding: 0.5cm 1.5cm 0 0;
 }}
 
-.page-footer img {{
-    height: 24px;
+.page-header img {{
+    height: 28px;
     width: auto;
 }}
 
-/* Add padding to body to prevent content overlap with footer */
+/* Add padding to content to prevent overlap with header */
 .content {{
-    padding-bottom: 2cm;
+    padding-top: 1.5cm;
 }}
 """
 
@@ -218,17 +217,17 @@ def convert_md_to_pdf(
             ]
         )
 
-        # Build footer logo HTML (fixed position for all pages)
-        footer_html = ""
+        # Build header logo HTML (fixed position for all pages)
+        header_html = ""
         if include_logo:
             logo_b64 = _get_logo_base64()
             if logo_b64:
-                footer_html = f'''
-        <div class="page-footer">
+                header_html = f'''
+        <div class="page-header">
             <img src="data:image/png;base64,{logo_b64}" alt="NAUMEN">
         </div>'''
 
-        # Wrap in HTML structure with footer
+        # Wrap in HTML structure with header
         full_html = f"""
         <!DOCTYPE html>
         <html>
@@ -236,10 +235,10 @@ def convert_md_to_pdf(
             <meta charset="utf-8">
         </head>
         <body>
+            {header_html}
             <div class="content">
                 {html_content}
             </div>
-            {footer_html}
         </body>
         </html>
         """
