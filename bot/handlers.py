@@ -1,18 +1,16 @@
-import asyncio
-from pathlib import Path
+from contextlib import suppress
 
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, Document
+from aiogram.types import Message, Document, FSInputFile
 
 from config import MAX_FILE_SIZE_MB, CONVERSION_TIMEOUT
-from converter import secure_temp_dir, convert_md_to_pdf, ConversionError as ConverterConversionError
-from .errors import (
-    BotError,
-    InvalidFileFormat,
-    FileTooLarge,
-    ConversionError,
-    ConversionTimeout,
+from converter import secure_temp_dir
+from .errors import InvalidFileFormat
+from .file_pipeline import (
+    validate_markdown_document,
+    build_conversion_paths,
+    convert_document_to_pdf,
 )
 
 router = Router()
@@ -42,7 +40,7 @@ async def cmd_help(message: Message):
         "• Cyrillic text\n\n"
         "**Limits:**\n"
         f"• Max file size: {MAX_FILE_SIZE_MB} MB\n"
-        "• Max conversion time: 60 seconds\n\n"
+        f"• Max conversion time: {CONVERSION_TIMEOUT} seconds\n\n"
         "Use /privacy for security info.",
         parse_mode="Markdown"
     )
@@ -64,42 +62,31 @@ async def cmd_privacy(message: Message):
 @router.message(F.document)
 async def handle_document(message: Message, bot: Bot):
     document: Document = message.document
-
-    # Validate file extension
-    if not document.file_name or not document.file_name.lower().endswith(".md"):
+    if document is None:
         raise InvalidFileFormat()
 
-    # Validate file size
-    if document.file_size > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise FileTooLarge()
+    safe_file_name = validate_markdown_document(document, MAX_FILE_SIZE_MB)
 
     status_msg = await message.answer("⏳ Converting...")
 
     try:
         with secure_temp_dir() as temp_dir:
-            # Download file
-            input_path = temp_dir / document.file_name
+            input_path, output_path = build_conversion_paths(temp_dir, safe_file_name)
             await bot.download(document, destination=input_path)
 
-            # Prepare output path
-            output_path = temp_dir / input_path.with_suffix(".pdf").name
 
-            # Convert with timeout
-            try:
-                await asyncio.wait_for(
-                    asyncio.to_thread(convert_md_to_pdf, input_path, output_path),
-                    timeout=CONVERSION_TIMEOUT
-                )
-            except asyncio.TimeoutError:
-                raise ConversionTimeout()
-            except ConverterConversionError as e:
-                raise ConversionError() from e
+            await convert_document_to_pdf(
+                input_path,
+                output_path,
+                CONVERSION_TIMEOUT,
+            )
 
             # Send PDF
             await message.answer_document(
-                document=output_path,
+                document=FSInputFile(output_path, filename=output_path.name),
                 caption="✅ Your PDF is ready!\n🔒 File was not stored on server."
             )
 
     finally:
-        await status_msg.delete()
+        with suppress(Exception):
+            await status_msg.delete()

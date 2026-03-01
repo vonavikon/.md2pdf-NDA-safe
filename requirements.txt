@@ -1,3 +1,7 @@
 aiogram==3.4.1
-pypandoc==1.13
 python-dotenv==1.0.0
+weasyprint==60.2
+pydyf==0.8.0
+markdown==3.7
+pygments==2.19.1
+

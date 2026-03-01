@@ -1,26 +1,24 @@
 import logging
 
-from aiogram.types import Message
-from aiogram.exceptions import TelegramAPIError
+from aiogram.types import ErrorEvent
 
 from .errors import BotError
 
 logger = logging.getLogger(__name__)
 
 
-async def error_handler(event: Message, handler):
+async def error_handler(event: ErrorEvent):
     """
     Global error handler for bot.
     Catches all exceptions and sends user-friendly messages.
     """
-    try:
-        return await handler(event)
-    except BotError as e:
-        logger.warning(f"Bot error: {e.__class__.__name__}")
-        await event.answer(e.user_message)
-    except TelegramAPIError as e:
-        logger.error(f"Telegram API error: {e}")
-        await event.answer("Telegram error. Please try again.")
-    except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
-        await event.answer("Internal error. Please try again later.")
+    message = event.update.message
+
+    if isinstance(event.exception, BotError):
+        logger.exception(f"Bot error: {event.exception.__class__.__name__}: {event.exception}")
+        if message:
+            await message.answer(event.exception.user_message)
+    else:
+        logger.exception(f"Unexpected error: {event.exception}")
+        if message:
+            await message.answer("Internal error. Please try again later.")
