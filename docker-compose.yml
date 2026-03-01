@@ -1,0 +1,14 @@
+services:
+  md2pdf:
+    build: .
+    container_name: md2pdf
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8443:8443"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-10}
+      - CONVERSION_TIMEOUT=${CONVERSION_TIMEOUT:-60}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
