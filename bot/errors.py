@@ -1,6 +1,6 @@
 class BotError(Exception):
     """Base exception for bot errors."""
-    user_message: str = "An error occurred"
+    user_message: str = "Произошла ошибка"
 
     def __init__(self, user_message: str | None = None):
         super().__init__(user_message or self.user_message)
@@ -9,22 +9,22 @@ class BotError(Exception):
 
 
 class InvalidFileFormat(BotError):
-    user_message = "Please send a file in .md format"
+    user_message = "Пожалуйста, отправьте файл в формате .md"
 
 
 class FileTooLarge(BotError):
     def __init__(self, max_size_mb: int):
-        super().__init__(f"File is too large. Maximum size is {max_size_mb} MB")
+        super().__init__(f"Файл слишком большой. Максимальный размер: {max_size_mb} МБ")
 
 
 class ConversionError(BotError):
-    user_message = "Conversion error. Please check your Markdown syntax"
+    user_message = "Ошибка конвертации. Проверьте синтаксис Markdown"
 
     def __init__(self, details: str | None = None):
         if details:
             sanitized = " ".join(details.split())
             sanitized = sanitized[:180]
-            super().__init__(f"{self.user_message}\nReason: {sanitized}")
+            super().__init__(f"{self.user_message}\nПричина: {sanitized}")
             return
         super().__init__()
 
@@ -32,6 +32,6 @@ class ConversionError(BotError):
 class ConversionTimeout(BotError):
     def __init__(self, timeout_seconds: int):
         super().__init__(
-            f"Conversion timeout ({timeout_seconds} seconds). "
-            "The document may be too complex"
+            f"Превышено время конвертации ({timeout_seconds} сек). "
+            "Возможно, документ слишком сложный"
         )
