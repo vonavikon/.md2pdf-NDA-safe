@@ -24,12 +24,25 @@ def _get_logo_base64() -> str:
 
 # NAUMEN Brand CSS for PDF
 def get_pdf_css(with_logo: bool = True) -> str:
-    """Generate PDF CSS with optional logo in footer."""
+    """Generate PDF CSS with optional logo in header."""
 
     return f"""
 @page {{
     size: A4;
-    margin: 2.5cm 1.5cm 2cm 1.5cm;
+    margin: 2cm 1.5cm;
+    @top-right {{
+        content: element(header-logo);
+    }}
+}}
+
+/* Running header logo */
+.header-logo {{
+    position: running(header-logo);
+}}
+
+.header-logo img {{
+    height: 28px;
+    width: auto;
 }}
 
 body {{
@@ -157,20 +170,6 @@ img {{
     max-width: 100%;
     height: auto;
 }}
-
-/* Fixed header with logo on every page - top right corner */
-.page-header {{
-    position: fixed;
-    top: 0;
-    right: 0;
-    text-align: right;
-    padding: 0.3cm 1.5cm 0 0;
-}}
-
-.page-header img {{
-    height: 28px;
-    width: auto;
-}}
 """
 
 
@@ -211,13 +210,13 @@ def convert_md_to_pdf(
             ]
         )
 
-        # Build header logo HTML (fixed position for all pages)
+        # Build header logo HTML (running element for @top-right)
         header_html = ""
         if include_logo:
             logo_b64 = _get_logo_base64()
             if logo_b64:
                 header_html = f'''
-        <div class="page-header">
+        <div class="header-logo">
             <img src="data:image/png;base64,{logo_b64}" alt="NAUMEN">
         </div>'''
 
