@@ -22,27 +22,29 @@ def _get_logo_base64() -> str:
     return ""
 
 
-def _get_logo_html() -> str:
-    """Get logo HTML tag with base64 image."""
-    logo_b64 = _get_logo_base64()
-    if logo_b64:
-        return f'<img src="data:image/png;base64,{logo_b64}" style="height: 32px;" alt="Logo">'
-    return ""
-
-
 # NAUMEN Brand CSS for PDF
 def get_pdf_css(with_logo: bool = True) -> str:
-    """Generate PDF CSS with optional logo in header."""
-    logo_html = _get_logo_html() if with_logo else ""
+    """Generate PDF CSS with optional logo in footer."""
 
     return f"""
 @page {{
     size: A4;
-    margin: 2cm 1.5cm;
-    @top-left {{
-        content: "{'' if not logo_html else ''}";
+    margin: 2.5cm 1.5cm 3cm 1.5cm;
+    @bottom-center {{
+        content: element(footer-logo);
         vertical-align: middle;
     }}
+}}
+
+/* Running footer logo - appears on every page */
+.footer-logo {{
+    position: running(footer-logo);
+    text-align: center;
+}}
+
+.footer-logo img {{
+    height: 28px;
+    width: auto;
 }}
 
 body {{
@@ -171,19 +173,6 @@ img {{
     height: auto;
 }}
 
-/* Document header with logo */
-.document-header {{
-    text-align: left;
-    margin-bottom: 1.5em;
-    padding-bottom: 0.8em;
-    border-bottom: 1px solid {BORDER_GRAY};
-}}
-
-.brand-logo {{
-    height: 36px;
-    width: auto;
-}}
-
 /* Content wrapper */
 .content {{
     /* No extra styling needed */
@@ -202,12 +191,12 @@ def convert_md_to_pdf(
 ) -> None:
     """
     Convert Markdown file to PDF using markdown + weasyprint.
-    Uses NAUMEN brand styling with Power Orange headers and logo.
+    Uses NAUMEN brand styling with Power Orange headers and logo in footer.
 
     Args:
         input_path: Path to input .md file
         output_path: Path to output .pdf file
-        include_logo: Whether to include brand logo in header
+        include_logo: Whether to include brand logo in footer
 
     Raises:
         ConversionError: If conversion fails
@@ -228,17 +217,17 @@ def convert_md_to_pdf(
             ]
         )
 
-        # Build logo header HTML
-        logo_html = ""
+        # Build footer logo HTML (running element for all pages)
+        footer_logo_html = ""
         if include_logo:
             logo_b64 = _get_logo_base64()
             if logo_b64:
-                logo_html = f'''
-        <div class="document-header">
-            <img src="data:image/png;base64,{logo_b64}" class="brand-logo" alt="Logo">
+                footer_logo_html = f'''
+        <div class="footer-logo">
+            <img src="data:image/png;base64,{logo_b64}" alt="Logo">
         </div>'''
 
-        # Wrap in HTML structure with logo
+        # Wrap in HTML structure with footer logo
         full_html = f"""
         <!DOCTYPE html>
         <html>
@@ -246,10 +235,10 @@ def convert_md_to_pdf(
             <meta charset="utf-8">
         </head>
         <body>
-            {logo_html}
             <div class="content">
                 {html_content}
             </div>
+            {footer_logo_html}
         </body>
         </html>
         """
