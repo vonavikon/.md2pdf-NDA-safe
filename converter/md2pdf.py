@@ -1,98 +1,213 @@
+import base64
 from pathlib import Path
 
 import markdown
 from weasyprint import HTML, CSS
 
-# CSS for better table rendering (like Cursor preview)
-PDF_CSS = """
-@page {
+# NAUMEN Brand Colors
+POWER_ORANGE = "#ff6611"
+COOL_GRAY = "#545658"
+LIGHT_GRAY = "#f5f5f5"
+BORDER_GRAY = "#e0e0e0"
+
+# Path to logo
+LOGO_PATH = Path(__file__).parent.parent / "assets" / "logo.png"
+
+
+def _get_logo_base64() -> str:
+    """Read logo file and return base64 encoded string."""
+    if LOGO_PATH.exists():
+        logo_bytes = LOGO_PATH.read_bytes()
+        return base64.b64encode(logo_bytes).decode('utf-8')
+    return ""
+
+
+def _get_logo_html() -> str:
+    """Get logo HTML tag with base64 image."""
+    logo_b64 = _get_logo_base64()
+    if logo_b64:
+        return f'<img src="data:image/png;base64,{logo_b64}" style="height: 32px;" alt="Logo">'
+    return ""
+
+
+# NAUMEN Brand CSS for PDF
+def get_pdf_css(with_logo: bool = True) -> str:
+    """Generate PDF CSS with optional logo in header."""
+    logo_html = _get_logo_html() if with_logo else ""
+
+    return f"""
+@page {{
     size: A4;
-    margin: 1.5cm;
-}
+    margin: 2cm 1.5cm;
+    @top-left {{
+        content: "{'' if not logo_html else ''}";
+        vertical-align: middle;
+    }}
+}}
 
-body {
-    font-family: 'DejaVu Sans', sans-serif;
+body {{
+    font-family: 'DejaVu Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 10pt;
-    line-height: 1.4;
-    color: #333;
-}
+    line-height: 1.5;
+    color: {COOL_GRAY};
+}}
 
-h1 { font-size: 18pt; margin-top: 0; }
-h2 { font-size: 14pt; margin-top: 1em; }
-h3 { font-size: 12pt; }
+/* NAUMEN Headers with Power Orange */
+h1 {{
+    font-size: 22pt;
+    margin-top: 0;
+    color: {POWER_ORANGE};
+    border-bottom: 2px solid {POWER_ORANGE};
+    padding-bottom: 0.3em;
+}}
 
-table {
+h2 {{
+    font-size: 16pt;
+    margin-top: 1.2em;
+    color: {POWER_ORANGE};
+}}
+
+h3 {{
+    font-size: 13pt;
+    color: {COOL_GRAY};
+    font-weight: bold;
+}}
+
+h4, h5, h6 {{
+    color: {COOL_GRAY};
+}}
+
+/* Links in brand color */
+a {{
+    color: {POWER_ORANGE};
+    text-decoration: none;
+}}
+
+a:hover {{
+    text-decoration: underline;
+}}
+
+/* Tables with brand styling */
+table {{
     width: 100%;
     border-collapse: collapse;
     margin: 1em 0;
     font-size: 9pt;
     table-layout: auto;
-}
+}}
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 6px 8px;
+th, td {{
+    border: 1px solid {BORDER_GRAY};
+    padding: 8px 10px;
     text-align: left;
     vertical-align: top;
     word-wrap: break-word;
     overflow-wrap: break-word;
-}
+}}
 
-th {
-    background-color: #f5f5f5;
+th {{
+    background-color: {POWER_ORANGE};
+    color: white;
     font-weight: bold;
-}
+}}
 
-tr:nth-child(even) {
-    background-color: #fafafa;
-}
+tr:nth-child(even) {{
+    background-color: {LIGHT_GRAY};
+}}
 
-code {
-    background-color: #f4f4f4;
-    padding: 2px 4px;
+/* Code blocks */
+code {{
+    background-color: {LIGHT_GRAY};
+    padding: 2px 5px;
     border-radius: 3px;
     font-family: 'DejaVu Sans Mono', monospace;
     font-size: 9pt;
-}
+    color: {COOL_GRAY};
+}}
 
-pre {
-    background-color: #f4f4f4;
-    padding: 12px;
+pre {{
+    background-color: #2d2d2d;
+    padding: 14px;
     border-radius: 4px;
     overflow-x: auto;
     font-size: 9pt;
-}
+    border-left: 3px solid {POWER_ORANGE};
+}}
 
-pre code {
+pre code {{
     background: none;
     padding: 0;
-}
+    color: #f8f8f2;
+}}
 
-blockquote {
-    border-left: 3px solid #ddd;
+/* Blockquotes */
+blockquote {{
+    border-left: 3px solid {POWER_ORANGE};
     margin: 1em 0;
-    padding-left: 1em;
-    color: #666;
-}
+    padding: 0.5em 1em;
+    background-color: {LIGHT_GRAY};
+    color: {COOL_GRAY};
+}}
 
-img {
+/* Lists */
+ul, ol {{
+    padding-left: 1.5em;
+}}
+
+li {{
+    margin-bottom: 0.3em;
+}}
+
+/* Horizontal rule */
+hr {{
+    border: none;
+    border-top: 1px solid {BORDER_GRAY};
+    margin: 1.5em 0;
+}}
+
+/* Images */
+img {{
     max-width: 100%;
     height: auto;
-}
+}}
+
+/* Document header with logo */
+.document-header {{
+    text-align: left;
+    margin-bottom: 1.5em;
+    padding-bottom: 0.8em;
+    border-bottom: 1px solid {BORDER_GRAY};
+}}
+
+.brand-logo {{
+    height: 36px;
+    width: auto;
+}}
+
+/* Content wrapper */
+.content {{
+    /* No extra styling needed */
+}}
 """
+
+
+# Legacy alias
+PDF_CSS = get_pdf_css()
 
 
 def convert_md_to_pdf(
     input_path: Path,
     output_path: Path,
+    include_logo: bool = True,
 ) -> None:
     """
     Convert Markdown file to PDF using markdown + weasyprint.
-    This gives better table rendering than pandoc+latex.
+    Uses NAUMEN brand styling with Power Orange headers and logo.
 
     Args:
         input_path: Path to input .md file
         output_path: Path to output .pdf file
+        include_logo: Whether to include brand logo in header
 
     Raises:
         ConversionError: If conversion fails
@@ -113,7 +228,17 @@ def convert_md_to_pdf(
             ]
         )
 
-        # Wrap in basic HTML structure
+        # Build logo header HTML
+        logo_html = ""
+        if include_logo:
+            logo_b64 = _get_logo_base64()
+            if logo_b64:
+                logo_html = f'''
+        <div class="document-header">
+            <img src="data:image/png;base64,{logo_b64}" class="brand-logo" alt="Logo">
+        </div>'''
+
+        # Wrap in HTML structure with logo
         full_html = f"""
         <!DOCTYPE html>
         <html>
@@ -121,15 +246,18 @@ def convert_md_to_pdf(
             <meta charset="utf-8">
         </head>
         <body>
-            {html_content}
+            {logo_html}
+            <div class="content">
+                {html_content}
+            </div>
         </body>
         </html>
         """
 
-        # Convert HTML to PDF with CSS
+        # Convert HTML to PDF with NAUMEN brand CSS
         HTML(string=full_html).write_pdf(
             output_path,
-            stylesheets=[CSS(string=PDF_CSS)]
+            stylesheets=[CSS(string=get_pdf_css())]
         )
 
     except Exception as error:
