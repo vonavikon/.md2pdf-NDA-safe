@@ -1,25 +1,20 @@
 FROM python:3.12-slim
 
-# Install system dependencies
+# Install system dependencies for WeasyPrint
 RUN apt-get update && apt-get install -y \
-    pandoc \
-    texlive-xetex \
-    texlive-fonts-recommended \
-    texlive-lang-cyrillic \
-    nodejs \
-    npm \
-    && npm install -g mermaid-filter \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-bin \
+    libffi-dev \
+    shared-mime-info \
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 WORKDIR /app
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
 COPY . .
-
-# Run bot
 CMD ["python", "main.py"]
