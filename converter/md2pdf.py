@@ -29,7 +29,7 @@ def get_pdf_css(with_logo: bool = True) -> str:
     return f"""
 @page {{
     size: A4;
-    margin: 2cm 1.5cm;
+    margin: 2.5cm 1.5cm 2cm 1.5cm;
 }}
 
 body {{
@@ -163,19 +163,13 @@ img {{
     position: fixed;
     top: 0;
     right: 0;
-    height: 1.5cm;
     text-align: right;
-    padding: 0.5cm 1.5cm 0 0;
+    padding: 0.3cm 1.5cm 0 0;
 }}
 
 .page-header img {{
     height: 28px;
     width: auto;
-}}
-
-/* Add padding to content to prevent overlap with header */
-.content {{
-    padding-top: 1.5cm;
 }}
 """
 
