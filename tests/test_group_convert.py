@@ -2,6 +2,19 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from aiogram.types import Message, Document, User, Chat
 
+# Mock problematic imports at module level
+import sys
+from unittest.mock import MagicMock
+
+# Mock weasyprint to avoid dependency issues
+sys.modules['weasyprint'] = MagicMock()
+sys.modules['weasyprint.text'] = MagicMock()
+sys.modules['weasyprint.text.ffi'] = MagicMock()
+sys.modules['weasyprint.css'] = MagicMock()
+sys.modules['weasyprint.css.computed_values'] = MagicMock()
+
+from bot.handlers import cmd_convert
+
 
 @pytest.fixture
 def mock_bot():
@@ -49,3 +62,50 @@ async def test_cmd_convert_valid_md_file(mock_message, mock_bot):
         mock_validate.assert_called_once()
         mock_convert.assert_called_once()
         mock_message.answer_document.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_cmd_convert_without_reply(mock_bot):
+    """Test /convert command without reply - should be ignored."""
+    message = MagicMock(spec=Message)
+    message.message_id = 100
+    message.reply_to_message = None
+    message.answer = AsyncMock()
+
+    await cmd_convert(message, mock_bot)
+
+    message.answer.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_cmd_convert_reply_to_non_document(mock_bot):
+    """Test /convert command replying to message without document."""
+    message = MagicMock(spec=Message)
+    message.message_id = 100
+    message.reply_to_message = MagicMock(spec=Message)
+    message.reply_to_message.document = None
+    message.answer = AsyncMock()
+
+    await cmd_convert(message, mock_bot)
+
+    message.answer.assert_called_once()
+    call_args = message.answer.call_args
+    assert "❌ Это не .md файл" in call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_cmd_convert_reply_to_non_md_file(mock_bot):
+    """Test /convert command replying to non-.md document."""
+    message = MagicMock(spec=Message)
+    message.message_id = 100
+    message.reply_to_message = MagicMock(spec=Message)
+    message.reply_to_message.document = MagicMock(spec=Document)
+    message.reply_to_message.document.file_name = "test.pdf"
+    message.reply_to_message.document.file_size = 1000
+    message.answer = AsyncMock()
+
+    await cmd_convert(message, mock_bot)
+
+    message.answer.assert_called_once()
+    call_args = message.answer.call_args
+    assert "❌ Ошибка конвертации" in call_args[0][0]
