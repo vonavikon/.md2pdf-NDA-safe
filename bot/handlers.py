@@ -101,9 +101,12 @@ async def handle_document(message: Message, bot: Bot):
 @router.message(Command("convert"))
 async def cmd_convert(message: Message, bot: Bot):
     """Handle /convert command in groups - converts .md file from replied message."""
+    logger.info(f"Convert command received from chat {message.chat.id}")
+
     # Check if this is a reply
     if not message.reply_to_message:
-        return  # Ignore if not a reply
+        await message.answer("ℹ️ Ответьте этой командой на .md файл")
+        return
 
     replied = message.reply_to_message
 
@@ -141,6 +144,54 @@ async def cmd_convert(message: Message, bot: Bot):
             )
 
             logger.info(f"Group convert success: {safe_file_name}")
+
+            await message.answer_document(
+                document=FSInputFile(output_path, filename=output_path.name),
+                caption="✅ PDF готов!",
+                reply_parameters=ReplyParameters(message_id=message.message_id)
+            )
+
+    except Exception:
+        await message.answer(
+            "❌ Ошибка конвертации",
+            reply_parameters=ReplyParameters(message_id=message.message_id)
+        )
+
+
+@router.message(F.text.regexp(r"@md2pdf_nova_bot"))
+async def handle_mention(message: Message, bot: Bot):
+    """Handle bot mention in groups - converts .md file from replied message."""
+    # Check if this is a reply to a document
+    if not message.reply_to_message or not message.reply_to_message.document:
+        return  # Ignore if not a reply to a document
+
+    replied = message.reply_to_message
+    document = replied.document
+
+    # Validate document
+    try:
+        safe_file_name = validate_markdown_document(document, MAX_FILE_SIZE_MB)
+    except (InvalidFileFormat, FileTooLarge):
+        await message.answer(
+            "❌ Это не .md файл",
+            reply_parameters=ReplyParameters(message_id=message.message_id)
+        )
+        return
+
+    logger.info(f"Mention convert: {safe_file_name} by user {message.from_user.id}")
+
+    try:
+        with secure_temp_dir() as temp_dir:
+            input_path, output_path = build_conversion_paths(temp_dir, safe_file_name)
+            await bot.download(document, destination=input_path)
+
+            await convert_document_to_pdf(
+                input_path,
+                output_path,
+                CONVERSION_TIMEOUT,
+            )
+
+            logger.info(f"Mention convert success: {safe_file_name}")
 
             await message.answer_document(
                 document=FSInputFile(output_path, filename=output_path.name),
