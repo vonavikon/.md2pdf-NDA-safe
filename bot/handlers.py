@@ -66,7 +66,7 @@ async def cmd_privacy(message: Message):
     )
 
 
-@router.message(F.document)
+@router.message(F.document, F.chat.type == "private")
 async def handle_document(message: Message, bot: Bot):
     document: Document = message.document
 
