@@ -40,8 +40,8 @@ Talk to [@BotFather](https://t.me/BotFather) and create a new bot. Get the token
 
 ```bash
 # Clone repository
-git clone https://github.com/vonavikon/.md2pdf.git
-cd .md2pdf
+git clone https://github.com/vonavikon/.md2pdf-NDA-safe.git
+cd .md2pdf-NDA-safe
 
 # Create .env file
 echo "BOT_TOKEN=your_token_from_botfather" > .env
