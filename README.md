@@ -2,9 +2,9 @@
 
 Telegram bot that converts Markdown files to PDF with support for tables, code highlighting, and Cyrillic text.
 
-## NDA Safe - How It works
+## How it works
 
-Your files are **never stored on the server**. Here's how:
+Files are not stored on the server.
 
 ### 1. Secure Temporary Directory
 ```python
@@ -15,18 +15,17 @@ with secure_temp_dir() as temp_dir:
     # → shutil.rmtree() deletes EVERYTHING
 ```
 
-Files are processed in `/tmp/md2pdf_xxx/` directory which is automatically removed after the conversion completes, even if the bot crashes.
+Files are processed in a `/tmp/md2pdf_xxx/` directory that is removed after conversion, or on crash.
 
 ### 2. Orphaned Directory Cleanup
-If the process crashes hard (killed -9), orphaned directories may remain in `/tmp/`. To prevent data leaks, we `cleanup_old_temp_dirs()` scans for and removes any `md2pdf_*` directories older than 5 minutes. This runs:
+If the process is killed hard (`kill -9`), orphaned directories may stay in `/tmp/`. `cleanup_old_temp_dirs()` removes any `md2pdf_*` directories older than 5 minutes. It runs:
 - After each successful conversion
 - When the bot starts up
 - Periodically as a background task
 
-**This is a production-ready deployment:**
+Deployment notes:
 
-- Uses Docker for easy deployment
-- No database or persistent storage
+- Docker, no database or persistent storage
 - Files processed in isolated temporary directories
 - Automatic cleanup on crash or exit
 

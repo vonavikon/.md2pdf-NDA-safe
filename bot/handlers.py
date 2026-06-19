@@ -21,12 +21,9 @@ logger = logging.getLogger(__name__)
 @router.message(Command("start"))
 async def cmd_start(message: Message):
     await message.answer(
-        "👋 **Добро пожаловать в Markdown to PDF Bot!**\n\n"
-        "Отправьте мне файл `.md` и я конвертирую его в PDF.\n\n"
-        "✅ Поддержка: таблицы, подсветка кода, списки, изображения\n"
-        "🎨 Оформление в стиле NAUMEN\n"
-        "🔒 Файлы не сохраняются на сервере (NDA Safe)\n\n"
-        "Используйте /help для дополнительной информации.",
+        "Привет! Пришли файл `.md` — верну PDF.\n\n"
+        "Поддерживает таблицы, подсветку кода, списки, изображения и кириллицу. Файлы на сервере не хранятся.\n\n"
+        "/help — подробнее.",
         parse_mode="Markdown"
     )
 
@@ -56,12 +53,7 @@ async def cmd_help(message: Message):
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message):
     await message.answer(
-        "🔒 **NDA Safe - Гарантия конфиденциальности**\n\n"
-        "• Файлы обрабатываются во временной памяти\n"
-        "• Все файлы удаляются сразу после конвертации\n"
-        "• Данные не сохраняются на сервере\n"
-        "• Даже при сбое бота файлы будут очищены\n\n"
-        "Ваши документы не оставляют следов.",
+        "Файлы обрабатываются во временной памяти и удаляются сразу после конвертации — на сервере ничего не сохраняется. При жёстком сбое процесса остатки подчищаются автоматически.",
         parse_mode="Markdown"
     )
 
@@ -90,7 +82,7 @@ async def handle_document(message: Message, bot: Bot):
 
             await message.answer_document(
                 document=FSInputFile(output_path, filename=output_path.name),
-                caption="✅ PDF готов!\n🔒 Файл не сохранён на сервере."
+                caption="✅ PDF готов!"
             )
 
     finally:
