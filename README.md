@@ -8,7 +8,7 @@ Telegram bot that converts Markdown files to PDF with support for tables, code h
 
 Files are not stored on the server.
 
-### 1. Secure Temporary Directory
+### 1. Secure temporary directory
 ```python
 with secure_temp_dir() as temp_dir:
     # Files are created here
@@ -19,7 +19,7 @@ with secure_temp_dir() as temp_dir:
 
 Files are processed in a `/tmp/md2pdf_xxx/` directory that is removed after conversion, or on crash.
 
-### 2. Orphaned Directory Cleanup
+### 2. Orphaned directory cleanup
 If the process is killed hard (`kill -9`), orphaned directories may stay in `/tmp/`. `cleanup_old_temp_dirs()` removes any `md2pdf_*` directories older than 5 minutes. It runs:
 - After each successful conversion
 - When the bot starts up
@@ -31,9 +31,9 @@ Deployment notes:
 - Files processed in isolated temporary directories
 - Automatic cleanup on crash or exit
 
-## Quick Start
+## Quick start
 
-### 1. Create Telegram Bot
+### 1. Create a Telegram bot
 
 Talk to [@BotFather](https://t.me/BotFather) and create a new bot. Get the token.
 
@@ -104,7 +104,7 @@ Telegram User (.md file)
     PDF response
 ```
 
-## Tech Stack
+## Tech stack
 
 - Python 3.12
 - aiogram 3.4.1 (Telegram Bot API)
