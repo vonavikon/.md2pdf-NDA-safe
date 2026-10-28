@@ -1,6 +1,8 @@
 # md2pdf - Telegram Markdown to PDF Bot
 
 **EN** · [RU](README.ru.md) · [中文](README.zh.md) · [Español](README.es.md) · [Français](README.fr.md)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F75_clean-brightgreen)](https://www.virustotal.com/gui/file/39320341cefc43910022fbcddb2a455c045e7f6020107e4df7d2c20b2ab8fa1d)
+
 
 Telegram bot that converts Markdown files to PDF with support for tables, code highlighting, and Cyrillic text.
 

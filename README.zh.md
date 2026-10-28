@@ -1,6 +1,8 @@
 # md2pdf - Telegram Markdown 转 PDF 机器人
 
 [EN](README.md) · [RU](README.ru.md) · **中文** · [Español](README.es.md) · [Français](README.fr.md)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F75_clean-brightgreen)](https://www.virustotal.com/gui/file/39320341cefc43910022fbcddb2a455c045e7f6020107e4df7d2c20b2ab8fa1d)
+
 
 Telegram 机器人，把 Markdown 文件转换为 PDF，支持表格、代码高亮和西里尔文字。
 

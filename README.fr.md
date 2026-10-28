@@ -1,6 +1,8 @@
 # md2pdf - Bot Telegram de Markdown en PDF
 
 [EN](README.md) · [RU](README.ru.md) · [中文](README.zh.md) · [Español](README.es.md) · **Français**
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F75_clean-brightgreen)](https://www.virustotal.com/gui/file/39320341cefc43910022fbcddb2a455c045e7f6020107e4df7d2c20b2ab8fa1d)
+
 
 Bot Telegram qui convertit des fichiers Markdown en PDF, avec prise en charge des tableaux, de la coloration syntaxique et de l'alphabet cyrillique.
 
